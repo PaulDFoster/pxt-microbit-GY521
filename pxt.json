@@ -13,7 +13,12 @@
         "extension.cpp",
         "extension.ts",
         "shims.d.ts",
-        "enums.d.ts"
+        "enums.d.ts",
+        "I2Cdev.h",
+        "I2Cdev.cpp",
+        "helper_3dmath.h",
+        "MPU6050.h",
+        "MPU6050.cpp"
     ],
     "testFiles": [
         "tests.ts"
