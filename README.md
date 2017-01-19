@@ -28,13 +28,14 @@ The microbit_GY521 is built using the I2CDev code for the MPU-6050 (GY-521).
 To allow this code to work on the Microbit significant parts of the functionality have been removed from the I2CDev source.
 
 A small subset of functions are made available:
+
     initialise()  - required to prepare to MPU6050 instantiation
     calibrate_Sensors()  - calculates sensor calibrations
     testConnection()  - validates MPU6050 can be found on I2C bus
     computeX() - calculates a complementary filter value for X axis in degrees
     computeY() - calculates a complementary filter value for Y axis in degrees
-    setXGyroOffset(value: number ) - sets axis offset
-    setYGyroOffset(value: number) 
+    setXGyroOffset(value: number ) - sets axis 
+    setYGyroOffset(value: number)
     setZGyroOffset(value: number) 
     setZAccelOffset(value: number)   
     setYAccelOffset(value: number)   
