@@ -1,9 +1,8 @@
 #include "pxt.h"
 #include "MPU6050.h"
 
-#include "PID_v1.h"
-
 using namespace pxt;
+
 
 namespace microbit_GY521 {
 
