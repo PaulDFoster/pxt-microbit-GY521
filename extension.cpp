@@ -3,7 +3,6 @@
 
 using namespace pxt;
 
-
 namespace microbit_GY521 {
 
 MPU6050 mpu;
@@ -44,7 +43,7 @@ float    base_z_accel = 0;
 // from the later data
 //%
 void calibrate_Sensors() {
-  int       num_readings = 10;
+  int       num_readings = 12;
 
   // Discard the first reading (don't know if this is needed or
   // not, however, it won't hurt.)
