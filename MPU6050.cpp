@@ -68,6 +68,12 @@ MPU6050::MPU6050() : debugSerial(USBTX, USBRX)
     q[2] = 0.0f;
     q[3] = 0.0f;
     devAddr = MPU6050_DEFAULT_ADDRESS;
+
+    setClockSource(MPU6050_CLOCK_PLL_XGYRO);
+    setFullScaleGyroRange(MPU6050_GYRO_FS_250);
+    setFullScaleAccelRange(MPU6050_ACCEL_FS_2);
+    setSleepEnabled(false); // thanks to Jack Elston for pointing this one out!
+
 }
 
 /** Specific address constructor.
@@ -92,6 +98,12 @@ MPU6050::MPU6050(uint8_t address) : debugSerial(USBTX, USBRX)
     timer.start();
     
     devAddr = address;
+
+    setClockSource(MPU6050_CLOCK_PLL_XGYRO);
+    setFullScaleGyroRange(MPU6050_GYRO_FS_250);
+    setFullScaleAccelRange(MPU6050_ACCEL_FS_2);
+    setSleepEnabled(false); // thanks to Jack Elston for pointing this one out!
+
 }
 
 /** Power on and prepare for general usage.

@@ -14,13 +14,13 @@ float unfiltered_gyro_angle_x;
 float last_gyro_x_angle;
 float last_x_angle;
 
-float GYRO_FACTOR;
 uint8_t READ_FS_SEL = 0; // hard coding the range value of the MPU
+float GYRO_FACTOR = 131.0 / pow (2 , READ_FS_SEL);
 unsigned long last_y_read_time;
 unsigned long last_x_read_time;
 
-int16_t ax, ay, az;
-int16_t gx, gy, gz;
+int16_t ax=0, ay=0, az=0;
+int16_t gx=0, gy=0, gz=0;
 
 // Apply the complementary filter to figure out the change in angle - choice of alpha is
 // estimated now.  Alpha depends on the sampling rate...
@@ -156,17 +156,11 @@ int computeX()
     return (int)((angle_x + 180));
     }
 
-//%
+/*
 void initialise(){
     mpu.initialize();
-    GYRO_FACTOR = 131.0 / pow (2 , READ_FS_SEL);
-    ax = 0;
-    ay = 0;
-    az = 0;
-    gx = 0;
-    gy = 0;
-    gz = 0;
 }
+*/
 
     //%
     void setXGyroOffset(int value){

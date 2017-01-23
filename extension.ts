@@ -1,11 +1,5 @@
 namespace microbit_GY521 {
     /**
-     * The initialise function for the GY521 must be called once
-     * before any other GY521 function. Call it at the start of your program
-     */
-    //% shim=microbit_GY521::initialise
-    export function initialise() { return }
-    /**
      * Calibrates each sensor from a series of readings
      */
     //% shim=microbit_GY521::calibrate_Sensors    
