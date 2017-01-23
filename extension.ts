@@ -4,12 +4,12 @@ namespace microbit_GY521 {
      * before any other GY521 function. Call it at the start of your program
      */
     //% shim=microbit_GY521::initialise
-    export function initialise() { }
+    export function initialise() { return }
     /**
      * Calibrates each sensor from a series of readings
      */
     //% shim=microbit_GY521::calibrate_Sensors    
-    export function calibrate_Sensors() { }  
+    export function calibrate_Sensors() { return }  
     /**
      * Validates I2C connectivity with the device using default address
      */
@@ -30,37 +30,37 @@ namespace microbit_GY521 {
      * Determine your device offset by running tests
      */
     //% shim=microbit_GY521::setXGyroOffset    
-    export function setXGyroOffset(value: number ) { }
+    export function setXGyroOffset(value: number ) { return }
     /**
      * Sets up the Y Gyro offset of this device
      * Determine your device offset by running tests
      */
     //% shim=microbit_GY521::setYGyroOffset    
-    export function setYGyroOffset(value: number) { }
+    export function setYGyroOffset(value: number) { return }
     /**
      * Sets up the Z Gyro offset of this device
      * Determine your device offset by running tests
      */
     //% shim=microbit_GY521::setZGyroOffset    
-    export function setZGyroOffset(value: number) { }
+    export function setZGyroOffset(value: number) { return }
      /**
      * Sets up the Z accelerometer offset of this device
      * Determine your device offset by running tests
      */
     //% shim=microbit_GY521::setZAccelOffset    
-    export function setZAccelOffset(value: number) { }   
+    export function setZAccelOffset(value: number) { return }   
      /**
      * Sets up the Y accelerometer offset of this device
      * Determine your device offset by running tests
      */
     //% shim=microbit_GY521::setYAccelOffset    
-    export function setYAccelOffset(value: number) { }   
+    export function setYAccelOffset(value: number) { return }   
      /**
      * Sets up the X accelerometer offset of this device
      * Determine your device offset by running tests
      */
     //% shim=microbit_GY521::setXAccelOffset    
-    export function setXAccelOffset(value: number) { }   
+    export function setXAccelOffset(value: number) { return }   
      /**
      * Returns the Z gyro offset set on this device
      */
@@ -96,7 +96,7 @@ namespace microbit_GY521 {
      * Use the Read functions to obtain the results
      */
     //% shim=microbit_GY521::getMotion6    
-    export function getMotion6() { }  
+    export function getMotion6() { return }  
     /**
      * Returns integer container for accelerometer X-axis value
      * use after a call to getMotion6
