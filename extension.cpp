@@ -135,7 +135,6 @@ int computeY()
     last_y_read_time = t_now;
 
     mpu.resetFIFO();
-    
 
     return (int)(((angle_y) + 180));
     }

@@ -17,8 +17,7 @@
         "I2Cdev.cpp",
         "helper_3dmath.h",
         "MPU6050.h",
-        "MPU6050.cpp",
-        "main.ts"
+        "MPU6050.cpp"
     ],
     "testFiles": [
         "tests.ts"
