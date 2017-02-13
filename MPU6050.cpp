@@ -42,7 +42,7 @@ THE SOFTWARE.
 
 #include "MPU6050.h"
 
-#define useDebugSerial
+//#define useDebugSerial
 
 //instead of using pgmspace.h
 typedef const unsigned char prog_uchar;
@@ -69,10 +69,10 @@ MPU6050::MPU6050() : debugSerial(USBTX, USBRX)
     q[3] = 0.0f;
     devAddr = MPU6050_DEFAULT_ADDRESS;
 
-    setClockSource(MPU6050_CLOCK_PLL_XGYRO);
-    setFullScaleGyroRange(MPU6050_GYRO_FS_250);
-    setFullScaleAccelRange(MPU6050_ACCEL_FS_2);
-    setSleepEnabled(false); // thanks to Jack Elston for pointing this one out!
+    //setClockSource(MPU6050_CLOCK_PLL_XGYRO);
+    //setFullScaleGyroRange(MPU6050_GYRO_FS_250);
+    //setFullScaleAccelRange(MPU6050_ACCEL_FS_2);
+    //setSleepEnabled(false); // thanks to Jack Elston for pointing this one out!
 
 }
 
@@ -99,10 +99,10 @@ MPU6050::MPU6050(uint8_t address) : debugSerial(USBTX, USBRX)
     
     devAddr = address;
 
-    setClockSource(MPU6050_CLOCK_PLL_XGYRO);
-    setFullScaleGyroRange(MPU6050_GYRO_FS_250);
-    setFullScaleAccelRange(MPU6050_ACCEL_FS_2);
-    setSleepEnabled(false); // thanks to Jack Elston for pointing this one out!
+    //setClockSource(MPU6050_CLOCK_PLL_XGYRO);
+    //setFullScaleGyroRange(MPU6050_GYRO_FS_250);
+    //setFullScaleAccelRange(MPU6050_ACCEL_FS_2);
+    //setSleepEnabled(false); // thanks to Jack Elston for pointing this one out!
 
 }
 
