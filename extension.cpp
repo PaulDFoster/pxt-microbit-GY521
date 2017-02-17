@@ -15,7 +15,7 @@ float last_gyro_x_angle;
 float last_x_angle;
 
 uint8_t READ_FS_SEL = 0; // hard coding the range value of the MPU
-float GYRO_FACTOR = 0; //131.0 / pow(2, READ_FS_SEL);
+float GYRO_FACTOR = 0; 
 unsigned long last_y_read_time;
 unsigned long last_x_read_time;
 
@@ -24,7 +24,7 @@ int16_t gx=0, gy=0, gz=0;
 
 // Apply the complementary filter to figure out the change in angle - choice of alpha is
 // estimated now.  Alpha depends on the sampling rate...
-const float alpha = 0.98;
+const float alpha = 0.97;
 const float RADIANS_TO_DEGREES = 57.2958; //180/3.14159
 
 //  Use the following global variables 
@@ -42,12 +42,30 @@ float    base_z_accel = 0;
 // Simple calibration - just average first few readings to subtract
 // from the later data
 //%
-void calibrate_Sensors() {
-  int       num_readings = 10;
-  GYRO_FACTOR = 131.0 / pow (2 , READ_FS_SEL);
+bool calibrate_Sensors(int *offSets) {
+  int       num_readings = 20; // this value
+  READ_FS_SEL = mpu.getFullScaleGyroRange();
+  GYRO_FACTOR = 131.0 / pow(2, READ_FS_SEL); // and the pow value have a huge impact on balance if changed??
+
   mpu.initialize();
 
-  
+// Validate parameters are passed correctly
+/*
+if(offSets[0]!=-2694) return false;
+if(offSets[1]!=593) return false;
+if(offSets[2]!=485) return false;
+if(offSets[3]!=75) return false;
+if(offSets[4]!=15) return false;
+if(offSets[5]!=21) return false;
+*/
+
+  mpu.setXAccelOffset(offSets[0]);
+  mpu.setYAccelOffset(offSets[1]);
+  mpu.setZAccelOffset(offSets[2]);
+  mpu.setXGyroOffset(offSets[3]);
+  mpu.setYGyroOffset(offSets[4]);
+  mpu.setZGyroOffset(offSets[5]);
+
   // Discard the first reading (don't know if this is needed or
   // not, however, it won't hurt.)
   mpu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
@@ -69,6 +87,8 @@ void calibrate_Sensors() {
   base_x_accel /= num_readings;
   base_y_accel /= num_readings;
   base_z_accel /= num_readings;
+
+  return true;
 }
 
 //%
@@ -110,6 +130,8 @@ int readGyroZ(){
 //%
 int computeY()
 {
+    
+
     unsigned long t_now = system_timer_current_time();
     
     mpu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
@@ -118,12 +140,12 @@ int computeY()
     float gyro_y = (gy - base_y_gyro) / GYRO_FACTOR;
 
     float accel_y = ay - base_y_accel;
-    float accel_angle_y = atan(-1 * ax / sqrt(pow(accel_y, 2) + pow(az, 2))) * RADIANS_TO_DEGREES;
+    float accel_angle_y = atan(-1 * ax / sqrt((accel_y* accel_y) + (az * az))) * RADIANS_TO_DEGREES;
     
     // R*dAngle/dt is the error of the accelerometer on distance R
     // R * (accel_angle_y - last_y_angle)/dt 
     // 200mm * (1/0.1) = 2000 error in accelerometer reading?
-    float accelError = -1.28; //1.28 = 0.128 * (1 / 0.1);
+    //float accelError = -1.28; //1.28 = 0.128 * (1 / 0.1);
 
   //  accel_angle_y = accel_angle_y - accelError;
 
@@ -135,10 +157,11 @@ int computeY()
     last_y_read_time = t_now;
 
     mpu.resetFIFO();
+    
 
-    return (int)(((angle_y) + 180));
+
+    return (int)(((angle_y) /* + 180 */  ));
     }
-
 
 //%
 int computeX()

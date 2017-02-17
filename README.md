@@ -298,132 +298,147 @@ serial.writeNumber(microbit_GY521.readAccelZ());
 serial.writeLine(" ");
 
 ***************************************************************************************************
-The code below demonstrates using the GY521 package to drive a self-balancing robot
+The code below demonstrates using the GY521/MPU-6050 package to drive a self-balancing robot
 ***************************************************************************************************
 
-microbit_GY521.initialise();
+let offSets: number[] = [2791,593,1065,122,-29,1] // GY-521. Specific values calculated by separate calibration program
 
-microbit_GY521.calibrate_Sensors(); // required to increase accuracy of readings
+//let offSets: number[] = [-2694,593,485,75,15,21] // MPU-6050. Specific values calculated by separate calibration program
+let selfCal: boolean = microbit_GY521.calibrate_Sensors(offSets); // required to increase accuracy of readings
 
-let y: number = 0
-let x: number = 0
-let speed: number = 0
-let bigSwitch = false;
-let releaseSwitch = false;
-
-while (1)
-{
-    input.onButtonPressed(Button.A, () => { releaseSwitch = true; });
-    input.onButtonPressed(Button.B, () => { releaseSwitch = false; });
-    
-    x = microbit_GY521.computeX()
-    y = microbit_GY521.computeY()
-    serial.writeNumber(x);
-    serial.writeString(" ");
-    serial.writeNumber(y);
-    serial.writeString(" ");
-
-    // Bug in Angle code is causing int overflow
-    // and of device falls over, stop the motors. This simplifies having no off switch
-    if (y > 140 && y < 230) {
-        bigSwitch = true;
-    }
-    else {
-        bigSwitch = false;
-    }
-
-    if (releaseSwitch) bigSwitch = true;
-
-    speed = PID(x)
-    serial.writeNumber(speed);
-    serial.writeString(" ");
-
-    speed = PID(y)
-    serial.writeNumber(speed);
-    serial.writeLine(" ");
-
-    motorStop();
-
-  /*  
-    if(bigSwitch){
-        motorController(speed);
-    }
-    else {
-        serial.writeLine(" Angle overflow, motors stopped");
-        motorStop();
-    }
-  */
+if (!selfCal) {
+    basic.showLeds(`
+	# . . # .
+	# . # # #
+	# . . # .
+	# . # # #
+	# . . # .
+	`)
+    basic.pause(30000);
 }
 
+let y: number = 0
+let speed: number = 0
+
+// Motor state setup
+// Use to trim motors if one is stronger than the other
+let leftMotorBias = 0;
+let rightMotorBias = 0;
+// Manage baseline motor speed ie the value from which motor values have an affect
+let motorMin = 140;
 // PID state setup
-let lastTime = 0;
-let SampleTime = 10;
-let output = 0;
-
-// ************************************
-// Set point 190, Kp 70, Ki 275 Kd 0. Falls over
-//           190, Kp 60, Ki 275 kd 0, 190 top far, over reaching
-//           188, Kp 60, Ki 275 Kd 0, 188 to fat, still over reaching
-//           186, Kp 60, Ki 275, kd0, 186 seemed almost too less
-//           186, Kp 70, Ki 275, kd0 feels very close, under reaching
-//           187, Kp 70, Ki 275, kd 0 less stable then 186
-//           186, Kp 80, ki 275, kd 0 shorter oscillation of wheels to and fro
-//           186, Kp 80, Ki 300, kd 0 almost
-//           186, kp 90, Ki 0, kd 0 quite neat
-//           186, kp 100 ki 0 kd 0 feels like set point should be greater
-//           187, kp 100, ki 0 kd 0 most stable for Kp
-//           187, kp 110, ki 0 kd 0 ditto
-//           188, kp 110, ki 0 kd 0 not as good as 187
-//           187, kp 120, ki, 0, kd 0 hmmm good
-//           187, kp 130, ki 0, kd 0 needs greater angle
-//           188, kp 130, ki 0, kd 0 ditto
-//           187, kp 120, ki 0, kd 0 hmmm
-//           187, kp 120, ki 0, kd 0
-//           188, kp 120, ki 240, kd 0
-//           190, kp 110, ki 280 aggitated, 260 better
-//           190, kp 110, ki 220 interesting
-//           190, kp 110, ki 230 interesting
-//           190, kp 110, ki 235, kd 2 almost
-//           190, kp 110, ki 235, kd 3?
-
-let setPoint = 190;
-let Kp = 110; 
-let Ki = 235;                                                                                                                                                                                                                                     
-let Kd = 0;
-let ITerm = 0;
-let outMax = 255;
-let outMin = -255;
+let setPoint = -1;// Now set dynamically on start up
+let Kp = 100; //102
+let Ki = 76;  //68 
+let Kd = 52;  //60
+let outMax = 1023;
+let outMin = -1023;
 let lastInput = 0;
+let lastTime = 0;
+let accumulative_error : number = 0
+let last_error: number = 0
+let Actuator_Output: number = 0
+
+led.plotBarGraph(1000, 1023);
+basic.pause(500)
+led.plotBarGraph(750, 1023);
+basic.pause(500)
+led.plotBarGraph(500, 1023);
+basic.pause(500)
+led.plotBarGraph(250, 1023)
+basic.pause(500)
+
+basic.showLeds(`
+	. # . . .
+	# . . # .
+	# . . . .
+	# . . # .
+	. # . . .
+	`)
+
+input.onButtonPressed(Button.A, () => {
+    setPoint -= 1;
+});
+
+input.onButtonPressed(Button.B, () => {
+    setPoint += 1;
+});
+
+let skipDebug : number = 0;
+setPoint = microbit_GY521.computeY();
+
+while (1) {
+
+    basic.pause(2); // keep to 200hz
+    y = microbit_GY521.computeY()
+
+    if (y > 360) {
+        basic.showLeds(`
+            # . . . .
+            . # . # .
+            . # . . .
+            . # . # .
+            # . . . .
+            `);
+        
+        break;
+    }
+
+    speed = PID(y)    
+
+    skipDebug++;
+    
+
+    if (y > -80 && y < 80 ) {
+        // This prevents error in the PID from accumulating when robot laying down
+        motorController(speed)
+    } else {
+        motorStop()
+    }
+
+}
 
 function PID(input:number) : number
 {
 
-    let now = game.currentTime();
-    let timeChange = (now - lastTime);
+    let now = game.currentTime(); // in milliseconds
+    let timeChange = (now - lastTime)/1000; //convert to seconds
 
-    if (timeChange >= SampleTime)
-    {
+/*
+//  PID algorithm
+        Actuator_Output =
+            Kp * (distance from goal) 
+        + Ki * (accumulative error)
+        + Kd * (change in error)
+*/
 
-        let error = setPoint - input;
-        ITerm += (Ki * error);
-        if (ITerm > outMax)
-            ITerm = outMax;
-        else if (ITerm < outMin)
-            ITerm = outMin;
-        let dInput = (input - lastInput);
-        /*Compute PID Output*/
-        output = Kp * error + ITerm - Kd * dInput;
+        let distance_from_goal: number = (setPoint - input) // P
+        accumulative_error = accumulative_error + (distance_from_goal*timeChange) // I
+        let change_in_error = (distance_from_goal- last_error)/timeChange // D
+        last_error = distance_from_goal
+        Actuator_Output = Kp * distance_from_goal + Ki * accumulative_error + Kd * change_in_error
 
-        if (output > outMax)
-            output = outMax;
-        else if (output < outMin)
-            output = outMin;
-
+// A base motor speed to over come motor inertia    
+        if (Actuator_Output < 0) {
+            Actuator_Output = Actuator_Output - motorMin;
+        }
+        else {
+            Actuator_Output = Actuator_Output + motorMin;    
+    }
+    
+// Clamp actuator output to motor range  
+        if (Actuator_Output > outMax) {
+            Actuator_Output = outMax
+        }
+        if (Actuator_Output < outMin) {
+            Actuator_Output = outMin
+        }
+               
         lastInput = input;
         lastTime = now;
 
-   }
-    return output;
+   
+    return Actuator_Output;
 }
 
 function motorStop() {
@@ -435,6 +450,7 @@ function motorStop() {
 
 function motorController(speed: number)
 {
+    
     if (speed > 0) {
         pins.digitalWritePin(DigitalPin.P13, 1)
         pins.digitalWritePin(DigitalPin.P14, 0)
@@ -443,13 +459,16 @@ function motorController(speed: number)
 
     }
     if (speed < 0) {
+
         pins.digitalWritePin(DigitalPin.P13, 0)
         pins.digitalWritePin(DigitalPin.P14, 1)
         pins.digitalWritePin(DigitalPin.P15, 0)
         pins.digitalWritePin(DigitalPin.P16, 1)
     }
- 
-    pins.servoWritePin(AnalogPin.P0, speed)
-    pins.servoWritePin(AnalogPin.P1, speed)
+   
+   pins.analogWritePin(AnalogPin.P0, Math.abs(speed + rightMotorBias))
+   pins.analogSetPeriod(AnalogPin.P0,2500) 
+   pins.analogWritePin(AnalogPin.P1, Math.abs(speed + leftMotorBias))
+   pins.analogSetPeriod(AnalogPin.P1,2500) 
  
 }

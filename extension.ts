@@ -3,7 +3,7 @@ namespace microbit_GY521 {
      * Calibrates each sensor from a series of readings
      */
     //% shim=microbit_GY521::calibrate_Sensors    
-    export function calibrate_Sensors() { return }  
+    export function calibrate_Sensors(offSets:number[]) { return false }  
     /**
      * Validates I2C connectivity with the device using default address
      */
