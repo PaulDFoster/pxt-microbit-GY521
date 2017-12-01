@@ -1,5 +1,5 @@
 #include "pxt.h"
-#include "MPU6050.h"
+#include "smallMPU6050.h"
 
 using namespace pxt;
 
@@ -125,6 +125,34 @@ int readGyroY(){
 int readGyroZ(){
     return (int)gz;
 }
+
+// Complementary filters used by the self balancing robot solution
+//%
+int computeYINT()
+{ 
+
+
+    unsigned long t_now = system_timer_current_time();
+    
+    mpu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
+
+    int dt = (t_now - last_y_read_time) / 1000.0; // Convert to seconds
+    int gyro_y = (gy - base_y_gyro) / GYRO_FACTOR;
+
+    int accel_y = ay - base_y_accel;
+    int accel_angle_y = atan(-1 * ax / sqrt((accel_y* accel_y) + (az * az))) * RADIANS_TO_DEGREES;
+    
+    int gyro_angle_y = gyro_y * dt + last_y_angle;
+    // Filtered angle
+    int angle_y = alpha * gyro_angle_y + (1.0 - alpha) * accel_angle_y;
+
+    last_y_angle = angle_y;
+    last_y_read_time = t_now;
+
+    mpu.resetFIFO();
+
+    return angle_y;
+    }
 
 // Complementary filters used by the self balancing robot solution
 //%
