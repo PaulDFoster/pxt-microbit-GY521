@@ -16,8 +16,7 @@
         "I2Cdev.h",
         "I2Cdev.cpp",
         "smallMPU6050.h",
-        "smallMPU6050.cpp",
-        "main.ts"
+        "smallMPU6050.cpp"
     ],
     "testFiles": [
         "tests.ts"
