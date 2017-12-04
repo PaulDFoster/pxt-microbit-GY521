@@ -1,0 +1,44 @@
+let rightMotorBias: number = 0
+let leftMotorBias: number = 0
+
+input.onButtonPressed(Button.A, () => {
+    motorController(255)
+});
+
+input.onButtonPressed(Button.B, () => {
+    motorController(-255)
+});
+
+input.onButtonPressed(Button.AB, () => {
+    motorStop()
+})
+function motorStop() {
+    pins.digitalWritePin(DigitalPin.P13, 0)
+    pins.digitalWritePin(DigitalPin.P14, 0)
+    pins.digitalWritePin(DigitalPin.P15, 0)
+    pins.digitalWritePin(DigitalPin.P16, 0)
+}
+
+function motorController(speed: number) {
+
+    if (speed > 0) {
+        pins.digitalWritePin(DigitalPin.P13, 1)
+        pins.digitalWritePin(DigitalPin.P14, 0)
+        pins.digitalWritePin(DigitalPin.P15, 1)
+        pins.digitalWritePin(DigitalPin.P16, 0)
+
+    }
+    if (speed < 0) {
+
+        pins.digitalWritePin(DigitalPin.P13, 0)
+        pins.digitalWritePin(DigitalPin.P14, 1)
+        pins.digitalWritePin(DigitalPin.P15, 0)
+        pins.digitalWritePin(DigitalPin.P16, 1)
+    }
+
+    pins.analogWritePin(AnalogPin.P0, Math.abs(speed + rightMotorBias))
+    pins.analogSetPeriod(AnalogPin.P0, 2500)
+    pins.analogWritePin(AnalogPin.P1, Math.abs(speed + leftMotorBias))
+    pins.analogSetPeriod(AnalogPin.P1, 2500)
+
+}

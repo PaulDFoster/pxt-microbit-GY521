@@ -1,0 +1,110 @@
+
+let offSets: number[] =[-2694, 593, 485, 75, 15, 21] // MPU-6050
+let selfCal: boolean = microbit_GY521.calibrate_Sensors(offSets);
+// required to increase accuracy of readings
+
+if (!selfCal) {
+    basic.showLeds(`
+        # . . # .
+        # . # # #
+        # . . # .
+        # . # # #
+        # . . # .
+        `)
+    basic.pause(30000);
+}
+
+let y: number = 0
+let speed: number = 0
+
+// Motor state setup
+// Use to trim motors if one is stronger than the other
+let leftMotorBias = 0;
+let rightMotorBias = 0;
+let outMax = 1023;
+let outMin = -1023;
+// Manage baseline motor speed ie the value from which motor values have an affect
+let motorMin = 140;
+// PID state setup
+let setPoint = -1;
+
+
+led.plotBarGraph(1000, 1023);
+basic.pause(500)
+led.plotBarGraph(750, 1023);
+basic.pause(500)
+led.plotBarGraph(500, 1023);
+basic.pause(500)
+led.plotBarGraph(250, 1023)
+basic.pause(500)
+
+basic.showLeds(`
+    . # . . .
+    # . . # .
+    # . . . .
+    # . . # .
+    . # . . .
+    `)
+
+input.onButtonPressed(Button.A, () => {
+    setPoint -= 1;
+});
+
+input.onButtonPressed(Button.B, () => {
+    setPoint += 1;
+});
+
+setPoint = microbit_GY521.computeY();
+
+while (1) {
+
+    basic.pause(2);
+    // keep to 200hz
+    y = microbit_GY521.computeY()
+
+    if (y > 360) {
+        basic.showLeds(`
+            # . . . .
+            . # . # .
+            . # . . .
+            . # . # .
+            # . . . .
+            `);
+
+        break;
+    }
+
+    motorController(speed)
+
+}
+
+function motorStop() {
+    pins.digitalWritePin(DigitalPin.P13, 0)
+    pins.digitalWritePin(DigitalPin.P14, 0)
+    pins.digitalWritePin(DigitalPin.P15, 0)
+    pins.digitalWritePin(DigitalPin.P16, 0)
+}
+
+function motorController(speed: number) {
+
+    if (speed > 0) {
+        pins.digitalWritePin(DigitalPin.P13, 1)
+        pins.digitalWritePin(DigitalPin.P14, 0)
+        pins.digitalWritePin(DigitalPin.P15, 1)
+        pins.digitalWritePin(DigitalPin.P16, 0)
+
+    }
+    if (speed < 0) {
+
+        pins.digitalWritePin(DigitalPin.P13, 0)
+        pins.digitalWritePin(DigitalPin.P14, 1)
+        pins.digitalWritePin(DigitalPin.P15, 0)
+        pins.digitalWritePin(DigitalPin.P16, 1)
+    }
+
+    pins.analogWritePin(AnalogPin.P0, Math.abs(speed + rightMotorBias))
+    pins.analogSetPeriod(AnalogPin.P0, 2500)
+    pins.analogWritePin(AnalogPin.P1, Math.abs(speed + leftMotorBias))
+    pins.analogSetPeriod(AnalogPin.P1, 2500)
+
+}
