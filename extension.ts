@@ -10,21 +10,10 @@ namespace microbit_GY521 {
     //% shim=microbit_GY521::testConnection    
     export function testConnection() { return false }  
     /**
-     * A complementary filtered X angle value in degrees
-     */
-    //% shim=microbit_GY521::computeX    
-    export function computeX() { return 0 }  
-    /**
      * A complementary filtered Y angle value in degrees
      */
     //% shim=microbit_GY521::computeY    
     export function computeY() { return 0 }
-    /**
-     * A complementary filtered Y angle value in degrees
-     * calculated using integers
-     */
-    //% shim=microbit_GY521::computeYINT    
-    export function computeYINT() { return 0 }
     /**
      * Sets up the X Gyro offset of this device
      * Determine your device offset by running tests

@@ -154,75 +154,32 @@ int computeYINT()
     return angle_y;
     }
 
-// Complementary filters used by the self balancing robot solution
-//%
-int computeY()
-{
+    #define Gyr_Gain 0.00763358 
+    float dt=0.02;
     
+    float AccelX;
+    float AccelY;
+    float GyroY;
+    float mixY;
 
-    unsigned long t_now = system_timer_current_time();
+    int computeY()
+    {
+          mpu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
+          
+          GyroY = Gyr_Gain * (gy)*-1;
     
-    mpu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
-
-    float dt = (t_now - last_y_read_time) / 1000.0; // Convert to seconds
-    float gyro_y = (gy - base_y_gyro) / GYRO_FACTOR;
-
-    float accel_y = ay - base_y_accel;
-    float accel_angle_y = atan(-1 * ax / sqrt((accel_y* accel_y) + (az * az))) * RADIANS_TO_DEGREES;
+          AccelY = (atan2(ay, az) * 180 / PI);
+          AccelX = (atan2(ax, az) * 180 / PI);
+          
+          float K = 0.8;
+          float A = K / (K + dt);
     
-    // R*dAngle/dt is the error of the accelerometer on distance R
-    // R * (accel_angle_y - last_y_angle)/dt 
-    // 200mm * (1/0.1) = 2000 error in accelerometer reading?
-    //float accelError = -1.28; //1.28 = 0.128 * (1 / 0.1);
-
-  //  accel_angle_y = accel_angle_y - accelError;
-
-    float gyro_angle_y = gyro_y * dt + last_y_angle;
-    // Filtered angle
-    float angle_y = alpha * gyro_angle_y + (1.0 - alpha) * accel_angle_y;
-
-    last_y_angle = angle_y;
-    last_y_read_time = t_now;
-
-    mpu.resetFIFO();
+          mixY = A *(mixY+GyroY*dt) + (1-A)*AccelX; 
     
+          mpu.resetFIFO();
 
-
-    return (int)(((angle_y) /* + 180 */  ));
+          return mixY;
     }
-
-//%
-int computeX()
-{
-    mpu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
-    unsigned long t_now = system_timer_current_time();
-    
-    float gyro_x = (gx - base_x_gyro) / GYRO_FACTOR;
-
-    float accel_x = ax; // - base_y_accel;
-    
-    float accel_angle_x = atan(ay/sqrt(pow(accel_x,2) + pow(az,2)))*RADIANS_TO_DEGREES;
-
-    // Compute the filtered gyro angles
-    float dt = (t_now - last_x_read_time) / 1000.0;
-    float gyro_angle_x = gyro_x*dt + last_x_angle;
-    // Compute the drifting gyro angles
-    float unfiltered_gyro_angle_x = gyro_x*dt + last_gyro_x_angle;
-
-    float angle_x = alpha*gyro_angle_x + (1.0 - alpha)*accel_angle_x;
-
-    last_x_angle = angle_x;
-    last_gyro_x_angle = unfiltered_gyro_angle_x;
-    last_x_read_time = t_now;
-
-    return (int)((angle_x + 180));
-    }
-
-/*
-void initialise(){
-    mpu.initialize();
-}
-*/
 
     //%
     void setXGyroOffset(int value){
