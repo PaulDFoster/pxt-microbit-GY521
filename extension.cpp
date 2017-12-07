@@ -97,7 +97,7 @@ float mixY;
           AccelY = (atan2(ay, az) * 180 / PI);
           AccelX = (atan2(ax, az) * 180 / PI);
           
-          float K = 0.8;
+          float K = 0.98;
           float A = K / (K + dt);
     
           mixY = A *(mixY+GyroY*dt) + (1-A)*AccelX; 
