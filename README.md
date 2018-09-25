@@ -1,6 +1,5 @@
 for PXT/microbit
 
-/* ============================================
 I2Cdev device library code is placed under the MIT license
 Copyright (c) 2012 Jeff Rowberg
 
@@ -11,8 +10,7 @@ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,8 +19,8 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-===============================================
-*/
+
+<b>Introduction and example</b>
 
 The microbit_GY521 is built using the I2CDev code for the MPU-6050 (GY-521).
 To allow this code to work on the Microbit significant parts of the functionality have been removed from the I2CDev source.
@@ -30,7 +28,7 @@ To allow this code to work on the Microbit significant parts of the functionalit
 Example code for the package and for using the package with a balancing robot is provided at the bottom of this file.
 
 A small subset of functions are made available:
-
+```
     initialise()  - required to prepare to MPU6050 instantiation
     calibrate_Sensors()  - calculates sensor calibrations
     testConnection()  - validates MPU6050 can be found on I2C bus
@@ -58,9 +56,9 @@ A small subset of functions are made available:
 
 
 
-***************************************************************************************************
+******************************************************************************
 This code demonstrates tests of the GY521 code package
-***************************************************************************************************
+******************************************************************************
 microbit_GY521.initialise();
 
 if (microbit_GY521.testConnection())
@@ -106,9 +104,9 @@ serial.writeString(" ");
 serial.writeNumber(microbit_GY521.readAccelZ());
 serial.writeLine(" ");
 
-***************************************************************************************************
+**************************************************************************************
 The code below demonstrates using the GY521/MPU-6050 package to drive a self-balancing robot
-***************************************************************************************************
+**************************************************************************************
 
 let offSets: number[] = [2791,593,1065,122,-29,1] // GY-521. Specific values calculated by separate calibration program
 
