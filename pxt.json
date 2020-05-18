@@ -1,6 +1,6 @@
 {
     "name": "microbit-GY521",
-    "version": "0.0.0",
+    "version": "0.0.1",
     "description": "A PXT package to use the MPU-6050/GY-521.",
     "license": "MIT",
     "dependencies": {
